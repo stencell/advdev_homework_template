@@ -53,25 +53,37 @@ pipeline {
     }
 
     // Using Maven run the unit tests
-    stage('Unit Tests') {
-      steps {
-        echo "Running Unit Tests"
+    stage('Unit Tests & Code Analysis') {
+      failFast true
+      parallel{
+        stage('Unit Tests') {
+          steps {
+            echo "Running Unit Tests"
+            sh "${mvnCmd} test"
+          }
+        }
+        stage('Code Analysis') {
+          steps {
+            echo "Running Code Analysis"
+            sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.${prefix}-sonarqube.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
+          }
+        }
+      }
         // sh "${mvnCmd} test"
 
         // step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
       }
-    }
 
     //Using Maven call SonarQube for Code Analysis
-    stage('Code Analysis') {
-      steps {
-        echo "Running Code Analysis"
-            sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.${prefix}-sonarqube.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
+    // stage('Code Analysis') {
+    //   steps {
+    //     echo "Running Code Analysis"
+    //         sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.${prefix}-sonarqube.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
 
-        // TBD
+    //     // TBD
 
-      }
-    }
+    //   }
+    // }
 
     // Publish the built war file to Nexus
     stage('Publish to Nexus') {
