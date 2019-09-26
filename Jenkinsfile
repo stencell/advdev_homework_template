@@ -24,8 +24,8 @@ pipeline {
     stage('Checkout Source') {
       steps {
         // TBD: Get code from protected Git repository
-        git credentialsId: '2da8352b-3e67-4dc3-95d9-dc790b602a1f', url: 'http://gogs-8370-gogs.apps.cluster-scl-ilt.scl-ilt.openshift.opentlc.com/CICDLabs/openshift-tasks-private.git'
-        // git 'https://github.com/stencell/advdev_homework_template.git'
+        // git credentialsId: '2da8352b-3e67-4dc3-95d9-dc790b602a1f', url: 'http://gogs-8370-gogs.apps.cluster-scl-ilt.scl-ilt.openshift.opentlc.com/CICDLabs/openshift-tasks-private.git'
+        git 'https://github.com/stencell/advdev_homework_template.git'
 
        script {
           def pom = readMavenPom file: 'pom.xml'
@@ -48,7 +48,7 @@ pipeline {
     stage('Build War File') {
       steps {
         echo "Building version ${devTag}"
-            sh "${mvnCmd} clean package -DskipTests=true"
+          sh "${mvnCmd} clean package -DskipTests=true"
       }
     }
 
@@ -65,34 +65,17 @@ pipeline {
         stage('Code Analysis') {
           steps {
             echo "Running Code Analysis"
-            sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.${prefix}-sonarqube.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
+            sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.gpte-hw-cicd.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
           }
         }
       }
-        // sh "${mvnCmd} test"
-
-        // step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
       }
-
-    //Using Maven call SonarQube for Code Analysis
-    // stage('Code Analysis') {
-    //   steps {
-    //     echo "Running Code Analysis"
-    //         sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.${prefix}-sonarqube.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
-
-    //     // TBD
-
-    //   }
-    // }
 
     // Publish the built war file to Nexus
     stage('Publish to Nexus') {
       steps {
         echo "Publish to Nexus"
-            sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3.${prefix}-nexus.svc.cluster.local:8081/repository/releases"
-
-        // TBD
-
+          sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases"
       }
     }
 
@@ -174,44 +157,44 @@ pipeline {
 }
 
     // Run Integration Tests in the Development Environment.
-    stage('Integration Tests') {
-      steps {
-        echo "Running Integration Tests"
-        script {
-          def status = "000"
+    // stage('Integration Tests') {
+    //   steps {
+    //     echo "Running Integration Tests"
+    //     script {
+    //       def status = "000"
 
-          // Create a new task called "integration_test_1"
-          echo "Creating task"
-          status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/integration_test_1").trim()
-          echo "Status: " + status
-          if (status != "201") {
-              error 'Integration Create Test Failed!'
-          }
-          // The next bit works - but only after the application
-          // has been deployed successfully
-          // status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/integration_test_1").trim()
-          // echo "Status: " + status
-          // if (status != "201") {
-          //     error 'Integration Create Test Failed!'
-          // }
+    //       // Create a new task called "integration_test_1"
+    //       echo "Creating task"
+    //       status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/integration_test_1").trim()
+    //       echo "Status: " + status
+    //       if (status != "201") {
+    //           error 'Integration Create Test Failed!'
+    //       }
+    //       // The next bit works - but only after the application
+    //       // has been deployed successfully
+    //       // status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/integration_test_1").trim()
+    //       // echo "Status: " + status
+    //       // if (status != "201") {
+    //       //     error 'Integration Create Test Failed!'
+    //       // }
 
-          echo "Retrieving tasks"
-          // TBD: Implement check to retrieve the task
-          status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
-          if (status != "200") {
-              error 'Integration Get Test Failed!'
-          }
+    //       echo "Retrieving tasks"
+    //       // TBD: Implement check to retrieve the task
+    //       status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -H 'Accept: application/json' -X GET http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
+    //       if (status != "200") {
+    //           error 'Integration Get Test Failed!'
+    //       }
 
-          echo "Deleting tasks"
-          // TBD: Implement check to delete the task
-          status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
-          if (status != "204") {
-              error 'Integration Create Test Failed!'
-          }
+    //       echo "Deleting tasks"
+    //       // TBD: Implement check to delete the task
+    //       status = sh(returnStdout: true, script: "curl -sw '%{response_code}' -o /dev/null -u 'tasks:redhat1' -X DELETE http://tasks.${prefix}-tasks-dev.svc.cluster.local:8080/ws/tasks/1").trim()
+    //       if (status != "204") {
+    //           error 'Integration Create Test Failed!'
+    //       }
 
-        }
-      }
-    }
+    //     }
+    //   }
+    // }
 
     // Copy Image to Nexus Docker Registry
     stage('Copy Image to Nexus Docker Registry') {
@@ -220,7 +203,7 @@ pipeline {
         // TBD. Use skopeo to copy
         script {
         // OpenShift 4
-        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:950940ec-c2b4-446d-aeda-e345d0ef0e4c docker://image-registry.openshift-image-registry.svc.cluster.local:5000/${devProject}/tasks:${devTag} docker://nexus-registry.${prefix}-nexus.svc.cluster.local:5000/tasks:${devTag}"
+        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag} docker://nexus3-registry.gpte-hw-cicd.svc.cluster.local:5000/${devProject}/tasks:${devTag}"
 
         // OpenShift 3
         // sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:admin123 docker://docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag} docker://nexus3-registry.${prefix}-nexus.svc.cluster.local:5000/tasks:${devTag}"
@@ -293,7 +276,7 @@ pipeline {
     stage('Switch over to new Version') {
       steps {
         // TBD: Stop for approval
-        input "Switch Production?"
+        // input "Switch Production?"
 
 
         echo "Executing production switch"
