@@ -1,3 +1,4 @@
+#!groovy
 // def prefix      = "8370"
 // Set variable globally to be available in all stages
 // Set Maven command to always include Nexus Settings
@@ -12,8 +13,6 @@
 // def destApp     = "tasks-green"
 // def activeApp   = ""
 
-
-#!groovy
 podTemplate(
   label: "skopeo-pod",
   cloud: "openshift",
