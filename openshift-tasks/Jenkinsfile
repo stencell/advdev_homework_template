@@ -17,17 +17,17 @@ def activeApp   = ""
 pipeline {
   agent {
     // Using the Jenkins Agent Pod that we defined earlier
-    // label "jenkins-agent-appdev"
-    kubernetes {
-      label "jenkins-agent-appdev"
-      cloud "openshift"
-      inheritFrom "maven"
-      containerTemplate {
-        name "jnlp"
-        image "docker-registry.default.svc:5000/${prefix}-jenkins/jenkins-agent-appdev:latest"
-        resourceLimitMemory "2Gi"
-  }
-    }
+    label "jenkins-agent-appdev"
+  //   kubernetes {
+  //     label "jenkins-agent-appdev"
+  //     cloud "openshift"
+  //     inheritFrom "maven"
+  //     containerTemplate {
+  //       name "jnlp"
+  //       image "docker-registry.default.svc:5000/${prefix}-jenkins/jenkins-agent-appdev:latest"
+  //       resourceLimitMemory "2Gi"
+  // }
+  //   }
   }
   stages {
     // Checkout Source Code and calculate Version Numbers and Tags
