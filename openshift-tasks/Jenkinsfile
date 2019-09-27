@@ -1,18 +1,4 @@
 #!groovy
-// def prefix      = "8370"
-// Set variable globally to be available in all stages
-// Set Maven command to always include Nexus Settings
-// def mvnCmd      = "mvn -s ./openshift-tasks/nexus_settings.xml"
-// Set Development and Production Project Names
-// def devProject  = "${prefix}-tasks-dev"
-// def prodProject = "${prefix}-tasks-prod"
-// Set the tag for the development image: version + build number
-// def devTag      = "0.0-0"
-// // Set the tag for the production image: version
-// def prodTag     = "0.0"
-// def destApp     = "tasks-green"
-// def activeApp   = ""
-
 podTemplate(
   label: "skopeo-pod",
   cloud: "openshift",
@@ -37,7 +23,9 @@ podTemplate(
     }
     // Build the Tasks Service
     dir('openshift-tasks') {
-      def version = getVersionFromPom("pom.xml")
+      // def version = getVersionFromPom("pom.xml")
+      def pom = readMavenPom file: 'pom.xml'
+      def version = pom.version
 
       def devTag  = "${version}-${BUILD_NUMBER}"
       def prodTag = "${version}"
