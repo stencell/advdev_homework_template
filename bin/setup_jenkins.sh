@@ -33,31 +33,31 @@ oc new-build -D $'FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11\
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`
 # TBD
-# oc new-build --strategy=pipeline --context-dir=openshift-tasks https://github.com/stencell/advdev_homework_template.git -e GUID=$GUID -e REPO=$REPO -e CLUSTER=$CLUSTER --name=tasks-pipeline -n ${GUID}-jenkins
+oc new-build --strategy=pipeline --context-dir=openshift-tasks https://github.com/stencell/advdev_homework_template.git -e GUID=$GUID -e REPO=$REPO -e CLUSTER=$CLUSTER --name=tasks-pipeline -n ${GUID}-jenkins
 
-echo "apiVersion: v1
-kind: BuildConfig
-metadata:
-  name: tasks-pipeline
-spec:
-  runPolicy: Serial
-  source:
-    git:
-      ref: master
-      uri: ${REPO}
-    contextDir: openshift-tasks
-    type: Git
-  strategy:
-    jenkinsPipelineStrategy:
-      env:
-      - name: GUID
-        value: ${GUID}
-      - name: CLUSTER
-        value: ${CLUSTER}
-      - name: REPO
-        value: ${REPO}
-      jenkinsfilePath: Jenkinsfile
-    type: JenkinsPipeline" | oc create -f - -n ${GUID}-jenkins
+# echo "apiVersion: v1
+# kind: BuildConfig
+# metadata:
+#   name: tasks-pipeline
+# spec:
+#   runPolicy: Serial
+#   source:
+#     git:
+#       ref: master
+#       uri: ${REPO}
+#     contextDir: openshift-tasks
+#     type: Git
+#   strategy:
+#     jenkinsPipelineStrategy:
+#       env:
+#       - name: GUID
+#         value: ${GUID}
+#       - name: CLUSTER
+#         value: ${CLUSTER}
+#       - name: REPO
+#         value: ${REPO}
+#       jenkinsfilePath: Jenkinsfile
+#     type: JenkinsPipeline" | oc create -f - -n ${GUID}-jenkins
 
 # Make sure that Jenkins is fully up and running before proceeding!
 while : ; do
