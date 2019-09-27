@@ -18,7 +18,7 @@ oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=4Gi
 # echo "Pause rollout"
 # oc rollout pause dc jenkins -n ${GUID}-jenkins
 echo "Set resources"
-oc set resources dc jenkins --limits=memory=2Gi,cpu=2 --requests=memory=2Gi,cpu=2 -n ${GUID}-jenkins
+oc set resources dc jenkins --limits=memory=4Gi,cpu=2 --requests=memory=2Gi,cpu=2 -n ${GUID}-jenkins
 # echo "set probes"
 # oc set probe dc jenkins --liveness --get-url=http://:8080/login --initial-delay-seconds=120 --timeout-seconds=30 --period-seconds=30 --success-threshold=1 --failure-threshold=2 -n ${GUID}-jenkins
 # oc set probe dc jenkins --readiness --get-url=http://:8080/login --initial-delay-seconds=3 --timeout-seconds=30 --period-seconds=10 --success-threshold=1 --failure-threshold=3 -n ${GUID}-jenkins
